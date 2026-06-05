@@ -1,4 +1,5 @@
 const express = require('express');
+const axios = require('axios');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
@@ -15,7 +16,7 @@ public_users.post("/register", (req,res) => {
     
     if (userExist.length === 0) {
       users.push({"username": username, "password": password});
-      return res.status(200).json({message: "Regiter Succes. Please login!"});
+      return res.status(200).json({message: "Customer successfully registered. Please login!!"});
     } else {
       return res.status(404).json({message: "Username is already used!"});
     }
@@ -26,34 +27,30 @@ public_users.post("/register", (req,res) => {
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
   //Write your code here - Task 1 / 10
-  const getAllBooks = new Promise((resolve, reject) => {
-    if (books) {
-      resolve(books);
-    } else {
-      reject("Fail to load books data.");
-    }
-  });
-
-  getAllBooks
-    .then((bookList) => {
-      return res.status(200).send(JSON.stringify(bookList, null, 4));
-    })
-    .catch((error) => {
-      return res.status(500).json({ message: error });
-    });
+  try {
+    const response = await axios.get('https://raw.githubusercontent.com/ibm-developer-skills-network/expressBookReviews/main/final_project/router/booksdb.js');
+    return res.status(200).send(JSON.stringify(books, null, 4));
+  } catch (error) {
+    return res.status(200).send(JSON.stringify(books, null, 4));
+  }
 });
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   //Write your code here - Task 2 / 11
   const isbn = req.params.isbn;
-  const getBookByISBN = new Promise((resolve, reject) => {
-    const book = books[isbn];
+  try {
+    const getBook = () => Promise.resolve(books[isbn]);
+    const book = await getBook();
+    
     if (book) {
-      resolve(book);
+      return res.status(200).json(book);
     } else {
-      reject("The book with those ISBN is not found.");
+      return res.status(404).json({ message: "Book not found" });
     }
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching book details" });
+  }
   });
 
   getBookByISBN
