@@ -53,74 +53,65 @@ public_users.get('/isbn/:isbn',async function (req, res) {
 
   
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  //Write your code here - Task 3 / 12
-  const authorParam = req.params.author.toLowerCase();
-
-  const getBooksByAuthor = new Promise((resolve, reject) => {
-    const keys = Object.keys(books);
-    let matchingBooks = [];
-
-    keys.forEach((key) => {
-      if (books[key].author.toLowerCase() === authorParam) {
-        matchingBooks.push({
-          isbn: key,
-          title: books[key].title,
-          reviews: books[key].reviews
-        });
+public_users.get('/author/:author', async function (req, res) {
+    const authorParam = req.params.author.toLowerCase();
+    try {
+      const keys = Object.keys(books);
+      let matchingBooks = [];
+  
+      keys.forEach((key) => {
+        if (books[key].author.toLowerCase() === authorParam) {
+          matchingBooks.push({
+            isbn: key,
+            title: books[key].title,
+            reviews: books[key].reviews
+          });
+        }
+      });
+  
+      if (matchingBooks.length > 0) {
+        return res.status(200).json(matchingBooks);
+      } else {
+        return res.status(404).json({ message: `No books found for the author: '${req.params.author}'` });
       }
-    });
-
-    if (matchingBooks.length > 0) {
-      resolve(matchingBooks);
-    } else {
-      reject("The books from the Author is not found.");
+    } catch (error) {
+      return res.status(500).json({ 
+        message: "An internal server error occurred while fetching author details.", 
+        error: error.message 
+      });
     }
   });
-
-  getBooksByAuthor
-    .then((booksFound) => {
-      return res.status(200).json(booksFound);
-    })
-    .catch((error) => {
-      return res.status(404).json({ message: error });
-    });
-});
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  //Write your code here - Task 4 / 13
-  const titleParam = req.params.title.toLowerCase();
-
-  const getBooksByTitle = new Promise((resolve, reject) => {
-    const keys = Object.keys(books);
-    let matchingBooks = [];
-
-    keys.forEach((key) => {
-      if (books[key].title.toLowerCase() === titleParam) {
-        matchingBooks.push({
-          isbn: key,
-          author: books[key].author,
-          reviews: books[key].reviews
-        });
+public_users.get('/title/:title', async function (req, res) {
+    const titleParam = req.params.title.toLowerCase();
+  
+    try {
+      const keys = Object.keys(books);
+      let matchingBooks = [];
+  
+      keys.forEach((key) => {
+        if (books[key].title.toLowerCase() === titleParam) {
+          matchingBooks.push({
+            isbn: key,
+            author: books[key].author,
+            reviews: books[key].reviews
+          });
+        }
+      });
+  
+      if (matchingBooks.length > 0) {
+        return res.status(200).json(matchingBooks);
+      } else {
+        return res.status(404).json({ message: `No books found with the title: '${req.params.title}'` });
       }
-    });
-
-    if (matchingBooks.length > 0) {
-      resolve(matchingBooks);
-    } else {
-      reject("No book found with the title.");
+    } catch (error) {
+      return res.status(500).json({ 
+        message: "An internal server error occurred while fetching title details.", 
+        error: error.message 
+      });
     }
   });
-
-  getBooksByTitle
-    .then((booksFound) => {
-      return res.status(200).json(booksFound);
-    })
-    .catch((error) => {
-      return res.status(404).json({ message: error });
-    });
-});
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
