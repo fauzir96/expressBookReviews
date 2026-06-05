@@ -12,16 +12,14 @@ public_users.post("/register", (req,res) => {
   const password = req.body.password;
 
   if (username && password) {
-    let userExist = users.filter((user) => user.username === username);
-    
-    if (userExist.length === 0) {
+    if (!isValid(username)) { 
       users.push({"username": username, "password": password});
-      return res.status(200).json({message: "Customer successfully registered. Please login!!"});
+      return res.status(200).json({ message: "Customer successfully registered. Please login!" });
     } else {
-      return res.status(404).json({message: "Username is already used!"});
+      return res.status(404).json({ message: "Username already exists!" });
     }
   } 
-  return res.status(404).json({message: "Username or password should not be empty!"});
+  return res.status(404).json({ message: "Username or password cannot be empty!" });
 });
 
 // Get the book list available in the shop
@@ -52,6 +50,7 @@ public_users.get('/isbn/:isbn',async function (req, res) {
     return res.status(500).json({ message: "Error fetching book details" });
   }
   });
+
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
